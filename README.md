@@ -1,6 +1,6 @@
 ﻿# CrowdedSherrif
 
-Very small [BepInEx](https://github.com/BepInEx/BepInEx/) plugin adding Sheriff role in the game
+Very small [BepInEx](https://github.com/BepInEx/BepInEx/) plugin adding Sheriff role in the game\
 Also this codebase *isn't perfect* because it was written for less than 24 hours
 
 # How to Install
