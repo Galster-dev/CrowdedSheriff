@@ -10,7 +10,7 @@ Also this codebase *isn't perfect* because it was written for less than 24 hours
 
 # How to use
 1. Everyone in the lobby *must* have this mod
-2. Patch Among Us server ([Impostor](https://github.com/Impostor/Impostor) or [NodePolus](https://github.com/NodePolus/NodePolus)) to allow non-impostors to kill, or use [this server]() (soon)
+2. Build [server](https://github.com/Galster2010/Impostor/) or [get latest release](https://github.com/Galster2010/Impostor/releases/latest) and set it up
 3. Connect to server via [CustomServersClient](https://github.com/andruzzzhka/CustomServersClient/) or [these instructions](https://impostor.github.io/Impostor/)
 4. Enjoy the game
 
