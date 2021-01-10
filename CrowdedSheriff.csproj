@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="LICENSE.md" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\GenericPatches.cs" />
     <Compile Include="src\OptionsPatches.cs" />

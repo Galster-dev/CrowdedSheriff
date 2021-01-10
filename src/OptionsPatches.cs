@@ -9,6 +9,7 @@ using GameOptionsMenu = PHCKLDDNJNP;
 using GameOptionsData = KMOGFLPJLLK;
 using GameSettingsMenu = JCLABFFHPEO;
 using NumberOption = PCGDGFIAJJI;
+using ToggleOption = BCLDBBKFJPK;
 using Scroller = CIAACBCIDFI;
 using OptionBehaviour = LLKOLCLGCBD;
 using AmongUsClient = FMLLKEACGIO;
@@ -20,30 +21,46 @@ namespace CrowdedSheriff
     static class OptionsPatches
     {
         public static byte sheriffCount = 1;
-        static readonly StringNames sheriffCountTitle = (StringNames)313; // idk funny number
+        public static bool doKillSheriffsTarget = false;
+        const StringNames sheriffCountTitle = (StringNames)313; // idk funny number
+        const StringNames killTargetTitle   = (StringNames)314;
 
         [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.GetString), new Type[] { typeof(StringNames), typeof(Il2CppReferenceArray<Il2CppSystem.Object>) })]
         static class TranslationController_GetString
         {
             public static bool Prefix(StringNames HKOIECMDOKL, ref string __result)
             {
-                if (HKOIECMDOKL == sheriffCountTitle)
+                switch(HKOIECMDOKL)
                 {
-                    __result = "# Sheriff count";
-                    return false;
+                    case sheriffCountTitle:
+                        __result = "# Sheriff count";
+                        break;
+                    case killTargetTitle:
+                        __result = "Sheriff's target dies";
+                        break;
+                    default:
+                        return true;
                 }
 
-                return true;
+                return false;
             }
         }
 
         [HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Start))]
         static class GameOptionsMenu_Start
         {
-            public static void OnCountChanged(OptionBehaviour option)
+            public static void OnValueChanged(OptionBehaviour option)
             {
                 if (!AmongUsClient.Instance || !AmongUsClient.Instance.BEIEANEKAFC) return;
-                sheriffCount = (byte)option.GetInt();
+                switch(option.Title)
+                {
+                    case sheriffCountTitle:
+                        sheriffCount = (byte)option.GetInt();
+                        break;
+                    case killTargetTitle:
+                        doKillSheriffsTarget = option.GetBool();
+                        break;
+                }
                 if (PlayerControl.GameOptions.JFALOOKBBAD)
                 {
                     PlayerControl.GameOptions.JFALOOKBBAD = false;
@@ -60,15 +77,23 @@ namespace CrowdedSheriff
                 var countOption = UnityEngine.Object.Instantiate(__instance.GetComponentsInChildren<NumberOption>()[1], __instance.transform);
                 countOption.transform.localPosition = new Vector3(countOption.transform.localPosition.x, -8.35f, countOption.transform.localPosition.z);
                 countOption.Title = sheriffCountTitle;
-                // FIXME: `Value` forces to be 1
-                countOption.Value = 1f;
+                countOption.Value = sheriffCount;
                 var str = "";
                 TranslationController_GetString.Prefix(countOption.Title, ref str);
                 countOption.TitleText.Text = str;
-                countOption.OnValueChanged = new Action<OptionBehaviour>(OnCountChanged);
+                countOption.OnValueChanged = new Action<OptionBehaviour>(OnValueChanged);
                 countOption.gameObject.AddComponent<OptionBehaviour>();
 
-                //__instance.GetComponentInParent<Scroller>().YBounds = new FloatRange(0, 9);
+                var toggleOption = UnityEngine.Object.Instantiate(__instance.GetComponentsInChildren<ToggleOption>()[1], __instance.transform);
+                toggleOption.transform.localPosition = new Vector3(toggleOption.transform.localPosition.x, -8.85f, toggleOption.transform.localPosition.z);
+                toggleOption.Title = killTargetTitle;
+                toggleOption.CheckMark.enabled = doKillSheriffsTarget;
+                var str2 = "";
+                TranslationController_GetString.Prefix(toggleOption.Title, ref str2);
+                toggleOption.TitleText.Text = str2;
+                toggleOption.OnValueChanged = new Action<OptionBehaviour>(OnValueChanged);
+                toggleOption.gameObject.AddComponent<OptionBehaviour>();
+                __instance.GetComponentInParent<Scroller>().YBounds.max+=0.3f;
             }
         }
 
@@ -90,9 +115,8 @@ namespace CrowdedSheriff
                 {
                     string smh = "";
                     TranslationController_GetString.Prefix(__instance.Title, ref smh);
-                    __instance.TitleText.Text = smh; // smort
-                    //__instance.ValueText.Text = string.Format(__instance.FormatString, __instance.Value);
-                    __instance.OnValueChanged = new Action<OptionBehaviour>(GameOptionsMenu_Start.OnCountChanged);
+                    __instance.TitleText.Text = smh;
+                    __instance.OnValueChanged = new Action<OptionBehaviour>(GameOptionsMenu_Start.OnValueChanged);
                     __instance.Value = 1f;
                     __instance.enabled = true;
 
@@ -102,12 +126,37 @@ namespace CrowdedSheriff
             }
         }
 
+        [HarmonyPatch(typeof(ToggleOption), nameof(ToggleOption.OnEnable))]
+        static class ToggleOption_OnEnable
+        {
+            static bool Prefix(ref ToggleOption __instance)
+            {
+                if(__instance.Title == killTargetTitle)
+                {
+                    string str = "";
+                    TranslationController_GetString.Prefix(__instance.Title, ref str);
+                    __instance.TitleText.Text = str;
+                    __instance.CheckMark.enabled = doKillSheriffsTarget;
+                    __instance.OnValueChanged = new Action<OptionBehaviour>(GameOptionsMenu_Start.OnValueChanged);
+                    __instance.enabled = true;
+
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         [HarmonyPatch(typeof(GameOptionsData), nameof(GameOptionsData.CKKJMLEDCJB))]
         static class GameOptionsData_ToHudString
         {
             static void Postfix(ref string __result)
             {
-                __result += "\nSheriff count: " + sheriffCount;
+                var builder = new System.Text.StringBuilder(__result);
+                builder.AppendLine();
+                builder.AppendLine($"Sheriff count: {sheriffCount}");
+                builder.AppendLine($"Sheriff's target dies: {(doKillSheriffsTarget ? "On" : "Off")}");
+                __result = builder.ToString();
             }
         }
 
@@ -120,7 +169,17 @@ namespace CrowdedSheriff
                 {
                     sheriffCount = ALMCIJKELCP.ReadByte();
                 }
-                catch { }
+                catch {
+                    sheriffCount = 0;
+                }
+                try
+                {
+                    doKillSheriffsTarget = ALMCIJKELCP.ReadBoolean();
+                }
+                catch
+                {
+                    doKillSheriffsTarget = false;
+                }
             }
         }
         [HarmonyPatch(typeof(GameOptionsData), nameof(GameOptionsData.FEJLLGGCJCC), typeof(MessageReader))]
@@ -133,7 +192,18 @@ namespace CrowdedSheriff
                 {
                     sheriffCount = ALMCIJKELCP.ReadByte();
                 }
-                catch { }
+                catch
+                {
+                    sheriffCount = 0;
+                }
+                try
+                {
+                    doKillSheriffsTarget = ALMCIJKELCP.ReadBoolean();
+                }
+                catch
+                {
+                    doKillSheriffsTarget = false;
+                }
             }
         }
 
@@ -143,6 +213,7 @@ namespace CrowdedSheriff
             static void Postfix(BinaryWriter AGLJMGAODDG)
             {
                 AGLJMGAODDG.Write(sheriffCount);
+                AGLJMGAODDG.Write(doKillSheriffsTarget);
             }
         }
     }

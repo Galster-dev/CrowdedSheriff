@@ -84,9 +84,9 @@ namespace CrowdedSheriff
                 }
 
                 __instance.Title.Text = "The Sheriff";
-                __instance.Title.Color = new Color(0xFF, 0xA5, 0x00, 0xFF);
+                __instance.Title.Color = Pallete.HPMGFCCJLIF;
                 __instance.Title.scale /= 2;
-                __instance.BackgroundBar.material.SetColor("_Color", new Color(0xFF, 0xA5, 0x00));
+                __instance.BackgroundBar.material.SetColor("_Color", Pallete.HPMGFCCJLIF);
 
                 var poolablePlayer = UnityEngine.Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
                 var data = PlayerControl.LocalPlayer.JLGGIOLCDFC;
@@ -189,18 +189,28 @@ namespace CrowdedSheriff
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer), typeof(PlayerControl))]
         static class PlayerControl_MurderPlayer
         {
-            static bool trueImpost;
+            static bool trueImpost = false;
+            
             static void Prefix(ref PlayerControl __instance, ref PlayerControl CAKODNGLPDF)
             {
-                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;
+                if (__instance.PlayerId == CAKODNGLPDF.PlayerId) return; // skip simulated kill to avoid bugs
+                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;         // and save this var
                 if (!trueImpost && IsSheriff(__instance.PlayerId) && !CAKODNGLPDF.JLGGIOLCDFC.DAPKNDBLKIA)
                 {
-                    // TODO: make sheriff's target die too (customizable)
-                    CAKODNGLPDF = __instance;
+                    if(OptionsPatches.doKillSheriffsTarget)
+                    {
+                        __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
+                        // TODO: better solution
+                        __instance.MurderPlayer(__instance);
+                        __instance = CAKODNGLPDF;
+                    } else
+                    {
+                        CAKODNGLPDF = __instance;
+                    }
                 }
                 __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
             }
-            static void Postfix(ref PlayerControl __instance)
+            static void Postfix(ref PlayerControl __instance, ref PlayerControl CAKODNGLPDF)
             {
                 if (!trueImpost)
                 {

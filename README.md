@@ -23,7 +23,8 @@ Also this codebase *isn't perfect* because it was written for less than 24 hours
 - Build
 
 # TODO
- - [ ] Make sheriff's target die too (customizable)
+ - [x] Make sheriff's target die too (customizable)
+ - [ ] Make ^ look better
  - [ ] Improve codebase
  - [ ] Add support for other roles ??
 
