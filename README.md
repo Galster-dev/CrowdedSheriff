@@ -4,9 +4,14 @@ Very small [BepInEx](https://github.com/BepInEx/BepInEx/) plugin adding Sheriff 
 Also this codebase *isn't perfect* because it was written for less than 24 hours
 
 # How to Install
+## Method 1
 1. [Download](https://builds.bepis.io/projects/bepinex_be) latest BepInEx x86 Il2Cpp Release and extract it in the game folder
-2. Get latest mod version from [releases]() (soon)
+2. Get latest `.dll` from [releases](https://github.com/Galster2010/CrowdedSheriff/releases)
 3. Put it in `Among Us/BepInEx/plugins`
+3.1 (Optional) Remove any other role mods from there, since this mod doesn't support cross-roles
+## Method 2
+1. Get latest `.zip` from [releases](https://github.com/Galster2010/CrowdedSheriff/releases)
+2. Extract it in game root directory
 
 # How to use
 1. Everyone in the lobby *must* have this mod
