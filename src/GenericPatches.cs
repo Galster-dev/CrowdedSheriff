@@ -21,11 +21,9 @@ namespace CrowdedSheriff
         [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
         static class PingTracker_Update
         {
-            static bool Prefix(ref PingTracker __instance)
+            static void Postfix(ref PingTracker __instance)
             {
-                __instance.text.Text = $"Discord:\nsleepyut#0710";
-                __instance.text.Color = Color.green;
-                return false;
+                __instance.text.Text += "\n[FFA500FF]CrowdedSheriff";
             }
         }
     }

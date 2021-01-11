@@ -1,8 +1,7 @@
 # Warning!
-This mod has a lot of bugs for now, i don't recommend using it
+This mod still in pre-release, so it may have some bugs. So please understand it and report any bugs you found in [issues](https://github.com/Galster2010/CrowdedSheriff/issues)
 
 # CrowdedSherrif
-
 Very small [BepInEx](https://github.com/BepInEx/BepInEx/) plugin adding Sheriff role in the game\
 Also this codebase *isn't perfect* because it was written for less than 24 hours
 
@@ -18,7 +17,7 @@ Also this codebase *isn't perfect* because it was written for less than 24 hours
 
 # How to use
 1. Everyone in the lobby *must* have this mod
-2. Build [server](https://github.com/Galster2010/Impostor/) or [get latest release](https://github.com/Galster2010/Impostor/releases/latest) and set it up
+2. Your server has to be patched (as for now) to allow non-impostors to kill. To do this build [this server](https://github.com/Galster2010/Impostor/) or [get latest release](https://github.com/Galster2010/Impostor/releases/latest) and set it up
 3. Connect to server via [CustomServersClient](https://github.com/andruzzzhka/CustomServersClient/) or [these instructions](https://impostor.github.io/Impostor/)
 4. Enjoy the game
 

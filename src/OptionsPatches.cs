@@ -117,7 +117,7 @@ namespace CrowdedSheriff
                     TranslationController_GetString.Prefix(__instance.Title, ref smh);
                     __instance.TitleText.Text = smh;
                     __instance.OnValueChanged = new Action<OptionBehaviour>(GameOptionsMenu_Start.OnValueChanged);
-                    __instance.Value = 1f;
+                    __instance.Value = sheriffCount;
                     __instance.enabled = true;
 
                     return false;

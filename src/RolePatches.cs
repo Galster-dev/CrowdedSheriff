@@ -15,7 +15,7 @@ using GameOptionsData = KMOGFLPJLLK;
 using Pallete = LOCPGOACAJF;
 using PhysicsHelper = LBKBHDOOGHL;
 using Constants = CAMOCHFAHMA;
-using DeathReason = DBLJKMDLJIF;
+using EndGameManager = ABNGEPFHMHP;
 using KeyboardJoystick = ADEHDODPMHJ;
 using GameData = EGLJNOMOGNP;
 using PlayerInfo = EGLJNOMOGNP.DCJMABDDJCF;
@@ -85,7 +85,7 @@ namespace CrowdedSheriff
 
                 __instance.Title.Text = "The Sheriff";
                 __instance.Title.Color = Pallete.HPMGFCCJLIF;
-                __instance.Title.scale /= 2;
+                __instance.Title.scale /= 1.5f; // the sheriff is too big
                 __instance.BackgroundBar.material.SetColor("_Color", Pallete.HPMGFCCJLIF);
 
                 var poolablePlayer = UnityEngine.Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
@@ -93,17 +93,18 @@ namespace CrowdedSheriff
 
                 poolablePlayer.SetFlipX(false);
                 poolablePlayer.transform.localPosition = new Vector3(0, __instance.BaseY - 0.25f, -8);
-                var vec = new Vector3(1.8f, 1.8f, 1.8f);
+                var vec = new Vector3(1.5f, 1.5f, 1.5f);
                 poolablePlayer.transform.localScale = vec;
                 PlayerControl.SetPlayerMaterialColors(data.EHAHBDFODKC, poolablePlayer.Body);
                 HatManager.IAINKLDJAGC.HCAEGGFGECL(poolablePlayer.SkinSlot, data.HPAMBHFDLEH);
-                poolablePlayer.HatSlot.SetHat(data.AFEJLMBMKCJ, 0);
+                poolablePlayer.HatSlot.SetHat(data.AFEJLMBMKCJ, data.EHAHBDFODKC);
                 PlayerControl.SetPetImage(data.AJIBCNMKNPM, data.EHAHBDFODKC, poolablePlayer.PetSlot);
                 poolablePlayer.NameText.gameObject.SetActive(true);
                 poolablePlayer.NameText.Text = data.EIGEKHDAKOH;
-                poolablePlayer.NameText.Color = Pallete.HPMGFCCJLIF;
+                //poolablePlayer.NameText.Color = Pallete.HPMGFCCJLIF;
+                //poolablePlayer.NameText.transform.localScale = vec;
                 PlayerControl.LocalPlayer.nameText.Color = Pallete.HPMGFCCJLIF;
-                HudManager.IAINKLDJAGC.KillButton.gameObject.SetActive(true);
+                //HudManager.IAINKLDJAGC.KillButton.gameObject.SetActive(true);
 
                 return false;
             }
@@ -141,25 +142,25 @@ namespace CrowdedSheriff
             }
             static void Postfix(ref PlayerControl __instance)
             {
-                if(__instance.LGDCIDJJHMC && IsSheriff(__instance.PlayerId) && __instance.GEBLLBHGHLD && !__instance.JLGGIOLCDFC.DLPCKPBIJOE)
-                // AmOwner && isSheriff && canMove && !isDead
+                if(__instance.LGDCIDJJHMC && IsSheriff(__instance.PlayerId) && __instance.GEBLLBHGHLD)
+                // AmOwner && isSheriff && canMove
                 {
-                    __instance.SetKillTimer(Mathf.Max(0f, __instance.killTimer - Time.fixedDeltaTime));
-                    HudManager.IAINKLDJAGC.KillButton.SetTarget(FindClosestTarget(ref __instance));
+                    if (!__instance.JLGGIOLCDFC.DLPCKPBIJOE)
+                    {
+                        __instance.SetKillTimer(Mathf.Max(0f, __instance.killTimer - Time.fixedDeltaTime));
+                        HudManager.IAINKLDJAGC.KillButton.SetTarget(FindClosestTarget(ref __instance));
+                    }
+                    HudManager.IAINKLDJAGC.KillButton.gameObject.SetActive(!__instance.JLGGIOLCDFC.DLPCKPBIJOE);
                 }
             }
         }
 
-        [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Die), new Type[] { typeof(DeathReason) })]
-        static class PlayerControl_Die
+        [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.Start))]
+        static class EndGameManager_Start
         {
-            static void Postfix(ref PlayerControl __instance)
+            static void Prefix()
             {
-                if(__instance.LGDCIDJJHMC)
-                {
-                    HudManager.IAINKLDJAGC.KillButton.gameObject.SetActive(false);
-                    HudManager.IAINKLDJAGC.ReportButton.gameObject.SetActive(false); // why not
-                }
+                sheriffs.Clear();
             }
         }
 
