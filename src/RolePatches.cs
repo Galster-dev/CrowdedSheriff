@@ -19,6 +19,8 @@ using EndGameManager = ABNGEPFHMHP;
 using KeyboardJoystick = ADEHDODPMHJ;
 using GameData = EGLJNOMOGNP;
 using PlayerInfo = EGLJNOMOGNP.DCJMABDDJCF;
+using MeetingHud = OOCJALPKPEP;
+using PlayerVoteArea = HDJGDMFCHDN;
 
 namespace CrowdedSheriff
 {
@@ -216,6 +218,21 @@ namespace CrowdedSheriff
                 if (!trueImpost)
                 {
                     __instance.JLGGIOLCDFC.DAPKNDBLKIA = false;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.GHDDIAMOCLF), typeof(PlayerInfo))]
+        static class MeetingHud_CreateButton
+        {
+            static void Postfix(ref PlayerInfo PPIKPNJEAKJ, ref PlayerVoteArea __result)
+            {
+                if(
+                    PPIKPNJEAKJ.JKOMCOJCAID == PlayerControl.LocalPlayer.PlayerId &&
+                    IsSheriff(PPIKPNJEAKJ.JKOMCOJCAID)
+                )
+                {
+                    __result.NameText.Color = Pallete.HPMGFCCJLIF;
                 }
             }
         }
