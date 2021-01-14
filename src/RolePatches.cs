@@ -103,10 +103,7 @@ namespace CrowdedSheriff
                 PlayerControl.SetPetImage(data.AJIBCNMKNPM, data.EHAHBDFODKC, poolablePlayer.PetSlot);
                 poolablePlayer.NameText.gameObject.SetActive(true);
                 poolablePlayer.NameText.Text = data.EIGEKHDAKOH;
-                //poolablePlayer.NameText.Color = Pallete.HPMGFCCJLIF;
-                //poolablePlayer.NameText.transform.localScale = vec;
                 PlayerControl.LocalPlayer.nameText.Color = Pallete.HPMGFCCJLIF;
-                //HudManager.IAINKLDJAGC.KillButton.gameObject.SetActive(true);
 
                 return false;
             }
