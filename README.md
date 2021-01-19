@@ -17,13 +17,27 @@ Also this codebase *isn't perfect* because it was written for less than 24 hours
 
 # How to use
 1. Everyone in the lobby *must* have this mod
-2. Your server has to be patched (as for now) to allow non-impostors to kill. To do this build [this server](https://github.com/Galster2010/Impostor/) or [get latest release](https://github.com/Galster2010/Impostor/releases/latest) and set it up
-3. Connect to server via [CustomServersClient](https://github.com/andruzzzhka/CustomServersClient/) or [these instructions](https://impostor.github.io/Impostor/)
+2. ~~Your server has to be patched (as for now) to allow non-impostors to kill. To do this build [this server](https://github.com/Galster2010/Impostor/) or [get latest release](https://github.com/Galster2010/Impostor/releases/latest) and set it up~~\
+   Now you can play on any server, even on official (which i do not support)
+3. (if required) Connect to server via [CustomServersClient](https://github.com/andruzzzhka/CustomServersClient/) or [these instructions](https://impostor.github.io/Impostor/)
 4. Enjoy the game
 
 ### How to disable
 - If you want to disable only this mod - put its `.dll` somewhere else
 - If you want to disable BepInEx at all but save it for future - rename `winhttp.dll` in your game root directory
+
+# FAQ
+- Q: How do i see if mod is loaded correctly?
+- A: Among Us version should become orange in main menu
+<br><br>
+- Q: "Sheriff count" is always 0
+- A: The host doesn't have this mod or just don't wanna play with sheriff lul
+<br><br>
+- Q: My screen turned black/my kill button disappeared/anything else
+- A: This is probably a bug, please open an [issue]() and provide more info
+<br><br>
+- Q: Why if we have "Sheriff's target dies" on it shows i killed myself when sheriff kills me?
+- A: It is a temporary solution to not stack bodies in one spot, because snapping to target's position is hard-coded in Among Us
 
 # Building
 - Create directory `libs` in project root and put all required libraries (from BepInEx) there
@@ -38,4 +52,5 @@ Also this codebase *isn't perfect* because it was written for less than 24 hours
 # Special thanks
 - [@XtraCube](https://github.com/XtraCube) helping with custom menu options
 - [@przebor](https://github.com/przebor) common helping
+- [@Woodi-dev](https://github.com/Woodi-dev) idea how to pass anticheat without patching the server *(also thanks for nickname suffix)*
 - [@dimaguy](https://github.com/dimaguy) helping with server

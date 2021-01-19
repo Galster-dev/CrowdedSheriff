@@ -33,7 +33,7 @@ namespace CrowdedSheriff
                 switch(HKOIECMDOKL)
                 {
                     case sheriffCountTitle:
-                        __result = "# Sheriff count";
+                        __result = "Sheriff count";
                         break;
                     case killTargetTitle:
                         __result = "Sheriff's target dies";

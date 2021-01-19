@@ -12,7 +12,8 @@ using HatManager = PPAEIPHJPDH<OFCPCFDHIEF>;
 using HudManager = PPAEIPHJPDH<PIEFJFEOGOL>;
 using AmongUsClient = FMLLKEACGIO;
 using GameOptionsData = KMOGFLPJLLK;
-using Pallete = LOCPGOACAJF;
+using Palette = LOCPGOACAJF;
+using KillButtonManager = MLPJGKEACMM;
 using PhysicsHelper = LBKBHDOOGHL;
 using Constants = CAMOCHFAHMA;
 using EndGameManager = ABNGEPFHMHP;
@@ -26,7 +27,6 @@ namespace CrowdedSheriff
 {
     static class RolePatches
     {
-        const byte rpcId = 160;
         static List<byte> sheriffs = new List<byte>();
         static List<byte> impostors = new List<byte>();
 
@@ -54,7 +54,7 @@ namespace CrowdedSheriff
                                .Take(OptionsPatches.sheriffCount)
                                .ToList();
 
-                var writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, rpcId, Hazel.SendOption.Reliable);
+                var writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRpc.SelectSheriffs, Hazel.SendOption.Reliable);
                 writer.WriteBytesAndSize(sheriffs.ToArray());
                 writer.EndMessage();
             }
@@ -65,58 +65,72 @@ namespace CrowdedSheriff
         {
             static bool Prefix(byte HKHMBLJFLMC, MessageReader ALMCIJKELCP)
             {
-                if(HKHMBLJFLMC == rpcId)
+                switch ((CustomRpc)HKHMBLJFLMC)
                 {
-                    sheriffs = ALMCIJKELCP.ReadBytesAndSize().ToList();
-
-                    return false;
+                    case CustomRpc.SelectSheriffs:
+                        sheriffs = ALMCIJKELCP.ReadBytesAndSize().ToList();
+                        break;
+                    case CustomRpc.SheriffKill:
+                        var sheriff = GameData.Instance.GetPlayerById(ALMCIJKELCP.ReadByte())?.LAOEJKHLKAI;
+                        
+                        PlayerControl_FixedUpdate.SheriffKill(sheriff, ALMCIJKELCP.ReadByte());
+                        break;
+                    
+                    default:
+                        return true;
                 }
-                return true;
+                return false;
             }
         }
 
-        [HarmonyPatch(typeof(IntroCutScene), nameof(IntroCutScene.MKDJLGEGEGC))]
-        static class IntroCutScene_BeginCrewmate
+        [HarmonyPatch(typeof(IntroCutScene.CKACLKCOJFO), nameof(IntroCutScene.CKACLKCOJFO.MoveNext))]
+        static class IntroCutScene_CoBegin
         {
-            static bool Prefix(ref IntroCutScene __instance)
+            static void Postfix(ref IntroCutScene.CKACLKCOJFO __instance)
             {
-                if (!IsSheriff(PlayerControl.LocalPlayer.PlayerId))
+                if (IsSheriff(PlayerControl.LocalPlayer.PlayerId))
                 {
-                    return true;
+                    IntroCutScene localscene = __instance.field_Public_PENEIDJGGAF_0;
+                    localscene.Title.Text = "Sheriff";
+                    PlayerControl.LocalPlayer.nameText.Color = localscene.Title.Color = Palette.HPMGFCCJLIF;
+                    //localscene.Title.scale /= 1.5f; // "Sheriff" isn't that big as "The Sheriff"
+                    localscene.ImpostorText.Text = "Kill the [FF0000FF]Impostor";
+                    localscene.BackgroundBar.material.color = Palette.HPMGFCCJLIF;
                 }
-
-                __instance.Title.Text = "The Sheriff";
-                __instance.Title.Color = Pallete.HPMGFCCJLIF;
-                __instance.Title.scale /= 1.5f; // the sheriff is too big
-                __instance.BackgroundBar.material.SetColor("_Color", Pallete.HPMGFCCJLIF);
-
-                var poolablePlayer = UnityEngine.Object.Instantiate(__instance.PlayerPrefab, __instance.transform);
-                var data = PlayerControl.LocalPlayer.JLGGIOLCDFC;
-
-                poolablePlayer.SetFlipX(false);
-                poolablePlayer.transform.localPosition = new Vector3(0, __instance.BaseY - 0.25f, -8);
-                var vec = new Vector3(1.5f, 1.5f, 1.5f);
-                poolablePlayer.transform.localScale = vec;
-                PlayerControl.SetPlayerMaterialColors(data.EHAHBDFODKC, poolablePlayer.Body);
-                HatManager.IAINKLDJAGC.HCAEGGFGECL(poolablePlayer.SkinSlot, data.HPAMBHFDLEH);
-                poolablePlayer.HatSlot.SetHat(data.AFEJLMBMKCJ, data.EHAHBDFODKC);
-                PlayerControl.SetPetImage(data.AJIBCNMKNPM, data.EHAHBDFODKC, poolablePlayer.PetSlot);
-                poolablePlayer.NameText.gameObject.SetActive(true);
-                poolablePlayer.NameText.Text = data.EIGEKHDAKOH;
-                PlayerControl.LocalPlayer.nameText.Color = Pallete.HPMGFCCJLIF;
-
-                return false;
             }
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         static class PlayerControl_FixedUpdate
         {
+            public static void SheriffKill(PlayerControl sheriff, byte targetId)
+            {
+                if (sheriff is null) return;
+                if (!IsSheriff(sheriff.PlayerId) && sheriff.PlayerId != targetId) return;
+                var target  = GameData.Instance.GetPlayerById(targetId)?.LAOEJKHLKAI;
+                if (target is null) return;
+                sheriff.MurderPlayer(target);
+            }
+
+            public static void RpcSheriffKill(PlayerControl sheriff, byte targetId)
+            {
+                if (AmongUsClient.Instance.LJMBKFFAMIP)
+                {
+                    SheriffKill(sheriff, targetId);
+                }
+
+                var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId,
+                    (byte) CustomRpc.SheriffKill, SendOption.Reliable, -1);
+                writer.Write(PlayerControl.LocalPlayer.PlayerId);
+                writer.Write(targetId);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+            }
+            
             static PlayerControl FindClosestTarget(ref PlayerControl local)
             {
                 PlayerControl result = null;
                 if (!ShipStatus.Instance) return null;
-                float disatnce = GameOptionsData.JMLGACIOLIK[Mathf.Clamp(PlayerControl.GameOptions.DLIBONBKPKL, 0, 2)];
+                float distance = GameOptionsData.JMLGACIOLIK[Mathf.Clamp(PlayerControl.GameOptions.DLIBONBKPKL, 0, 2)];
                 var truePos = local.GetTruePosition();
 
                 foreach(var p in GameData.Instance.AllPlayers)
@@ -128,10 +142,10 @@ namespace CrowdedSheriff
                         {
                             var vector = control.GetTruePosition() - truePos;
                             float magnitude = vector.magnitude;
-                            if (magnitude <= disatnce && !PhysicsHelper.IIPMKCELMED(truePos, vector.normalized, magnitude, Constants.BBHMKOHHIKI))
+                            if (magnitude <= distance && !PhysicsHelper.IIPMKCELMED(truePos, vector.normalized, magnitude, Constants.BBHMKOHHIKI))
                             {
                                 result = control;
-                                disatnce = magnitude;
+                                distance = magnitude;
                             }
                         }
                     }
@@ -186,36 +200,53 @@ namespace CrowdedSheriff
             }
         }
 
-        [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer), typeof(PlayerControl))]
+        [HarmonyPatch(typeof(KillButtonManager), nameof(KillButtonManager.PerformKill))]
+        static class KillButtonManager_PerformKill
+        {
+            static bool Prefix(ref KillButtonManager __instance)
+            {
+                if (IsSheriff(PlayerControl.LocalPlayer.PlayerId) && __instance.isActiveAndEnabled && 
+                    __instance.CurrentTarget && !__instance.isCoolingDown &&
+                    !PlayerControl.LocalPlayer.JLGGIOLCDFC.DLPCKPBIJOE && PlayerControl.LocalPlayer.GEBLLBHGHLD)
+                {
+                    if (__instance.CurrentTarget.JLGGIOLCDFC.DAPKNDBLKIA) // target is an impostor
+                    {
+                        PlayerControl_FixedUpdate.RpcSheriffKill(PlayerControl.LocalPlayer, __instance.CurrentTarget.PlayerId);
+                    }
+                    else
+                    {
+                        if (OptionsPatches.doKillSheriffsTarget)
+                        {
+                            // TODO: uhm
+                            PlayerControl_FixedUpdate.RpcSheriffKill(__instance.CurrentTarget, __instance.CurrentTarget.PlayerId);
+                        }
+                        PlayerControl_FixedUpdate.RpcSheriffKill(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.PlayerId);
+                    }
+                    __instance.SetTarget(null);
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
         static class PlayerControl_MurderPlayer
         {
-            static bool trueImpost = false;
-            
-            static void Prefix(ref PlayerControl __instance, ref PlayerControl CAKODNGLPDF)
+            private static bool trueImpost = false;
+
+            static void Prefix(ref PlayerControl __instance, [HarmonyArgument(0)] ref PlayerControl target)
             {
-                if (__instance.PlayerId == CAKODNGLPDF.PlayerId) return; // skip simulated kill to avoid bugs
-                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;         // and save this var
-                if (!trueImpost && IsSheriff(__instance.PlayerId) && !CAKODNGLPDF.JLGGIOLCDFC.DAPKNDBLKIA)
+                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;
+                if (IsSheriff(__instance.PlayerId) || __instance.PlayerId == target.PlayerId)
                 {
-                    if(OptionsPatches.doKillSheriffsTarget)
-                    {
-                        __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
-                        // TODO: better solution
-                        __instance.MurderPlayer(__instance);
-                        __instance = CAKODNGLPDF;
-                    } else
-                    {
-                        CAKODNGLPDF = __instance;
-                    }
+                    __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
                 }
-                __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
             }
-            static void Postfix(ref PlayerControl __instance, ref PlayerControl CAKODNGLPDF)
+
+            static void Postfix(ref PlayerControl __instance)
             {
-                if (!trueImpost)
-                {
-                    __instance.JLGGIOLCDFC.DAPKNDBLKIA = false;
-                }
+                __instance.JLGGIOLCDFC.DAPKNDBLKIA = trueImpost;
             }
         }
 
@@ -229,7 +260,7 @@ namespace CrowdedSheriff
                     IsSheriff(PPIKPNJEAKJ.JKOMCOJCAID)
                 )
                 {
-                    __result.NameText.Color = Pallete.HPMGFCCJLIF;
+                    __result.NameText.Color = Palette.HPMGFCCJLIF;
                 }
             }
         }
