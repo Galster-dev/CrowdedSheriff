@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using HarmonyLib;
 using Hazel;
@@ -96,7 +97,18 @@ namespace CrowdedSheriff
                     //localscene.Title.scale /= 1.5f; // "Sheriff" isn't that big as "The Sheriff"
                     localscene.ImpostorText.Text = "Kill the [FF0000FF]Impostor";
                     localscene.BackgroundBar.material.color = Palette.HPMGFCCJLIF;
+                    PlayerControl.LocalPlayer.SetKillTimer(8f);
+                    // FIXME: you can kill on 
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.OJPCECLPCCF))]
+        static class PlayerControl_SetInfected
+        {
+            static void Postfix()
+            {
+                PlayerControl.LocalPlayer.SetKillTimer(10f); // FIXED: ability to kill on intro scene
             }
         }
 
@@ -234,18 +246,44 @@ namespace CrowdedSheriff
         static class PlayerControl_MurderPlayer
         {
             private static bool trueImpost = false;
+            private static byte allowToKillMe = 255; // FIXED: desync when sheriff and impostor kill each other at the same time
 
             static void Prefix(ref PlayerControl __instance, [HarmonyArgument(0)] ref PlayerControl target)
             {
-                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;
-                if (IsSheriff(__instance.PlayerId) || __instance.PlayerId == target.PlayerId)
+                if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && __instance.PlayerId == allowToKillMe)
                 {
+                    if (__instance.JLGGIOLCDFC.DLPCKPBIJOE)
+                    {
+                        __instance.JLGGIOLCDFC.DLPCKPBIJOE = false; // make the killer alive so we can accept his kill
+                    }
+                    else
+                    {
+                        allowToKillMe = 255; // if he's not dead here's (probably) no desync
+                    }
+                }
+                trueImpost = __instance.JLGGIOLCDFC.DAPKNDBLKIA;
+                bool suicide = __instance.PlayerId == target.PlayerId;
+                if (IsSheriff(__instance.PlayerId) || suicide)
+                {
+                    if (!suicide) // sheriff killed an impostor
+                    {
+                        allowToKillMe = target.PlayerId;
+                        Task.Run(async () =>
+                        {
+                            await Task.Delay(AmongUsClient.Instance.DGAKPKLMIEI * 4); // ping * 4
+                            allowToKillMe = 255;
+                        });
+                    }
                     __instance.JLGGIOLCDFC.DAPKNDBLKIA = true;
                 }
             }
 
             static void Postfix(ref PlayerControl __instance)
             {
+                /*if (allowToKillMe == __instance.PlayerId)
+                {
+                    __instance.JLGGIOLCDFC.DLPCKPBIJOE = true; // make him dead back
+                }*/
                 __instance.JLGGIOLCDFC.DAPKNDBLKIA = trueImpost;
             }
         }

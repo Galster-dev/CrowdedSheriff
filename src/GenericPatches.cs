@@ -3,6 +3,7 @@ using UnityEngine;
 using Palette = LOCPGOACAJF;
 using VersionShower = BOCOFLHKCOJ;
 using PingTracker = ELDIDNABIPI;
+using AspectPosition = CKFHGGLODEF;
 
 namespace CrowdedSheriff
 {
@@ -25,13 +26,16 @@ namespace CrowdedSheriff
         [HarmonyPriority(Priority.First)]
         static class PingTracker_Update
         {
-            private static bool firstRun = true;
+            private static Vector3 lastDist = Vector3.zero;
             static void Postfix(ref PingTracker __instance)
             {
-                if (firstRun)
+                var aspect = __instance.text.gameObject.GetComponent<AspectPosition>();
+                if (aspect.DistanceFromEdge != lastDist)
                 {
-                    firstRun = false;
-                    __instance.text.transform.position -= new Vector3(0.55f, 0, 0);
+                    aspect.DistanceFromEdge += new Vector3(0.6f, 0);
+                    aspect.AdjustPosition();
+                    
+                    lastDist = aspect.DistanceFromEdge;
                 }
                 __instance.text.Text += $"\n[FFA500FF]CrowdedSheriff v{SheriffPlugin.version}\n" +
                                         $"by Galster (sleepyut#0710)";
