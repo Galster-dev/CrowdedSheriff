@@ -98,7 +98,6 @@ namespace CrowdedSheriff
                     localscene.ImpostorText.Text = "Kill the [FF0000FF]Impostor";
                     localscene.BackgroundBar.material.color = Palette.HPMGFCCJLIF;
                     PlayerControl.LocalPlayer.SetKillTimer(8f);
-                    // FIXME: you can kill on 
                 }
             }
         }
