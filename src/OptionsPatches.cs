@@ -72,10 +72,16 @@ namespace CrowdedSheriff
                     local.RpcSyncSettings(PlayerControl.GameOptions);
                 }
             }
+            static float GetLowestConfigY(GameOptionsMenu __instance)
+            {
+                return __instance.GetComponentsInChildren<OptionBehaviour>().Min(option => option.transform.localPosition.y);
+            }
             static void Postfix(ref GameOptionsMenu __instance)
             {
+                var lowestY = GetLowestConfigY(__instance);
+
                 var countOption = UnityEngine.Object.Instantiate(__instance.GetComponentsInChildren<NumberOption>()[1], __instance.transform);
-                countOption.transform.localPosition = new Vector3(countOption.transform.localPosition.x, -8.35f, countOption.transform.localPosition.z);
+                countOption.transform.localPosition = new Vector3(countOption.transform.localPosition.x, lowestY - 0.5f, countOption.transform.localPosition.z);
                 countOption.Title = sheriffCountTitle;
                 countOption.Value = sheriffCount;
                 var str = "";
@@ -85,7 +91,7 @@ namespace CrowdedSheriff
                 countOption.gameObject.AddComponent<OptionBehaviour>();
 
                 var toggleOption = UnityEngine.Object.Instantiate(__instance.GetComponentsInChildren<ToggleOption>()[1], __instance.transform);
-                toggleOption.transform.localPosition = new Vector3(toggleOption.transform.localPosition.x, -8.85f, toggleOption.transform.localPosition.z);
+                toggleOption.transform.localPosition = new Vector3(toggleOption.transform.localPosition.x, lowestY - 1.0f, toggleOption.transform.localPosition.z);
                 toggleOption.Title = killTargetTitle;
                 toggleOption.CheckMark.enabled = doKillSheriffsTarget;
                 var str2 = "";
