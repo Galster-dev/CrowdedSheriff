@@ -120,7 +120,7 @@ namespace CrowdedSheriff
                 countOption2.Title = sheriffKillCdTitle;
                 countOption2.Value = sheriffKillCd;
                 var str3 = "";
-                TranslationController_GetString.Prefix(countOption2.Title, ref str2);
+                TranslationController_GetString.Prefix(countOption2.Title, ref str3);
                 countOption2.TitleText.Text = str3;
                 countOption2.OnValueChanged = new Action<OptionBehaviour>(OnValueChanged);
                 countOption2.gameObject.AddComponent<OptionBehaviour>();
