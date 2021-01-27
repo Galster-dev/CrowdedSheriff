@@ -82,8 +82,6 @@ namespace CrowdedSheriff
                     //localscene.Title.scale /= 1.5f; // "Sheriff" isn't that big as "The Sheriff"
                     __instance.__this.ImpostorText.Text = "Kill the [FF0000FF]Impostor";
                     __instance.__this.BackgroundBar.material.color = Palette.Orange;
-                    PlayerControl_FixedUpdate.SetSheriffKillTimer(PlayerControl.LocalPlayer,
-                        15f); //Useless ? mby for % fix
                 }
             }
         }
@@ -94,10 +92,9 @@ namespace CrowdedSheriff
             static void Postfix()
             {
                 PlayerControl_FixedUpdate.SetSheriffKillTimer(PlayerControl.LocalPlayer,
-                    15f); // FIXED: ability to kill on intro scene
+                    10f); // FIXED: ability to kill on intro scene
             }
         }
-
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         static class PlayerControl_FixedUpdate
@@ -177,9 +174,11 @@ namespace CrowdedSheriff
                         SetSheriffKillTimer(__instance, Mathf.Max(0f, __instance.killTimer - Time.fixedDeltaTime));
                         HudManager._instance.KillButton.SetTarget(FindClosestTarget(ref __instance));
                     }
-                    if(!HudManager._instance.KillButton.gameObject.active)
+
+                    if (!HudManager._instance.KillButton.gameObject.active)
                         HudManager._instance.KillButton.gameObject.SetActive(true);
                 }
+
                 if (__instance.AmOwner && HudManager._instance.KillButton.gameObject.active && __instance.Data.IsDead)
                     HudManager._instance.KillButton.gameObject.SetActive(false);
             }
@@ -194,7 +193,7 @@ namespace CrowdedSheriff
                 {
                     if (IsSheriff(PlayerControl.LocalPlayer.PlayerId) && !PlayerControl.LocalPlayer.Data.IsDead)
                         PlayerControl_FixedUpdate.SetSheriffKillTimer(PlayerControl.LocalPlayer,
-                            PlayerControl.GameOptions.KillCooldown);
+                            OptionsPatches.sheriffKillCd);
                 }
             }
         }
