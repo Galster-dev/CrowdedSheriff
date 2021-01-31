@@ -286,10 +286,6 @@ namespace CrowdedSheriff
             [HarmonyPriority(Priority.Low)]
             static void Postfix(ref PlayerControl __instance)
             {
-                /*if (allowToKillMe == __instance.PlayerId)
-                {
-                    __instance.Data.IsDead = true; // make him dead back
-                }*/
                 __instance.Data.IsImpostor = trueImpost;
                 if (IsSheriff(__instance.PlayerId))
                 {

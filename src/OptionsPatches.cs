@@ -83,6 +83,7 @@ namespace CrowdedSheriff
                     .Min(option => option.transform.localPosition.y);
             }
 
+            [HarmonyPriority(Priority.Normal - 3)]
             static void Postfix(ref GameOptionsMenu __instance)
             {
                 var lowestY = GetLowestConfigY(__instance);
@@ -198,17 +199,21 @@ namespace CrowdedSheriff
         [HarmonyPatch(typeof(GameOptionsData), nameof(GameOptionsData.Method_24))]
         static class GameOptionsData_ToHudString
         {
+            [HarmonyPriority(Priority.Normal - 3)]
             static void Postfix(ref string __result)
             {
                 var builder = new Il2CppSystem.Text.StringBuilder(__result);
                 builder.AppendLine();
                 builder.AppendLine($"Sheriff count: {sheriffCount}");
-                builder.AppendLine($"Sheriff's target dies: {(doKillSheriffsTarget ? "On" : "Off")}");
+                if (sheriffCount != 0)
+                {
+                    builder.AppendLine($"Sheriff's target dies: {(doKillSheriffsTarget ? "On" : "Off")}");
 
-                builder.Append("Sheriff's kill cooldown: ");
-                builder.Append(sheriffKillCd);
-                builder.Append("s");
-                builder.AppendLine();
+                    builder.Append("Sheriff's kill cooldown: ");
+                    builder.Append(sheriffKillCd);
+                    builder.Append("s");
+                    builder.AppendLine();
+                }
 
                 __result = builder.ToString();
 
