@@ -9,7 +9,7 @@ namespace CrowdedSheriff
     public class SheriffPlugin : BasePlugin
     {
         public const string id = "ru.galster.sheriffmod";
-        public const string version = "0.4.2";
+        public const string version = "0.4.3";
         public static ManualLogSource Logger; 
         public Harmony Harmony { get; } = new Harmony(id); 
 
