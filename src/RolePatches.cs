@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CrowdedSheriff.Patches;
 using UnityEngine;
 using HarmonyLib;
 using Hazel;
@@ -36,7 +37,7 @@ namespace CrowdedSheriff
                 sheriffs = fake.Where(p => !p.Disconnected && !p.IsDead && !p.IsImpostor)
                     .Select(p => p.PlayerId)
                     .OrderBy(p => Guid.NewGuid()) // shuffle
-                    .Take(OptionsPatches.sheriffCount)
+                    .Take((byte)CustomGameOptionsData.customGameOptions.sheriffCount.value)
                     .ToList();
 
                 var writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId,
@@ -102,14 +103,14 @@ namespace CrowdedSheriff
             public static void SetSheriffKillTimer(PlayerControl __instance, float time)
             {
                 __instance.killTimer = time;
-                if (OptionsPatches.sheriffKillCd > 0f)
+                if (CustomGameOptionsData.customGameOptions.sheriffKillCd.value > 0f)
                 {
                     DestroyableSingleton<HudManager>.Instance.KillButton.SetCoolDown(__instance.killTimer,
-                        OptionsPatches.sheriffKillCd);
+                        CustomGameOptionsData.customGameOptions.sheriffKillCd.value);
                     return;
                 }
 
-                DestroyableSingleton<HudManager>.Instance.KillButton.SetCoolDown(0f, OptionsPatches.sheriffKillCd);
+                DestroyableSingleton<HudManager>.Instance.KillButton.SetCoolDown(0f, CustomGameOptionsData.customGameOptions.sheriffKillCd.value);
             }
 
             public static void SheriffKill(PlayerControl sheriff, byte targetId)
@@ -193,7 +194,7 @@ namespace CrowdedSheriff
                 {
                     if (IsSheriff(PlayerControl.LocalPlayer.PlayerId) && !PlayerControl.LocalPlayer.Data.IsDead)
                         PlayerControl_FixedUpdate.SetSheriffKillTimer(PlayerControl.LocalPlayer,
-                            OptionsPatches.sheriffKillCd);
+                            CustomGameOptionsData.customGameOptions.sheriffKillCd.value);
                 }
             }
         }
@@ -223,7 +224,7 @@ namespace CrowdedSheriff
                     }
                     else
                     {
-                        if (OptionsPatches.doKillSheriffsTarget)
+                        if (CustomGameOptionsData.customGameOptions.doKillSheriffsTarget.value)
                         {
                             // TODO: uhm
                             PlayerControl_FixedUpdate.RpcSheriffKill(__instance.CurrentTarget,
@@ -289,7 +290,7 @@ namespace CrowdedSheriff
                 __instance.Data.IsImpostor = trueImpost;
                 if (IsSheriff(__instance.PlayerId))
                 {
-                    PlayerControl_FixedUpdate.SetSheriffKillTimer(__instance, OptionsPatches.sheriffKillCd);
+                    PlayerControl_FixedUpdate.SetSheriffKillTimer(__instance, CustomGameOptionsData.customGameOptions.sheriffKillCd.value);
                 }
             }
         }
