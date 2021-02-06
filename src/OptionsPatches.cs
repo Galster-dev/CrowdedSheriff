@@ -32,7 +32,7 @@ namespace CrowdedSheriff.Patches
         public override void Serialize(BinaryWriter writer)
         {
             writer.Write(this.settingsVersion);
-            writer.Write((byte)sheriffCount.value);
+            writer.Write((byte) sheriffCount.value);
             writer.Write(doKillSheriffsTarget.value);
             writer.Write(sheriffKillCd.value);
         }

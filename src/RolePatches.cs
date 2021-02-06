@@ -146,7 +146,7 @@ namespace CrowdedSheriff
 
                 foreach (var p in GameData.Instance.AllPlayers)
                 {
-                    if (!p.Disconnected && p.PlayerId != local.PlayerId && !p.IsDead)
+                    if (!p.Disconnected && p.PlayerId != local.PlayerId && !p.IsDead && p.Object.CanMove)
                     {
                         var control = p.Object;
                         if (control != null)

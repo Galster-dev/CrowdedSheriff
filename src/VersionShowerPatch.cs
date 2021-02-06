@@ -33,7 +33,7 @@ namespace AmongUsUnknownImpostors.Patches
                 herysiaVersionShower.Text,
                 "\n",
                 "CrowdedSheriff",
-                " v1.2.2-Herysia",
+                " v1.3.0-Herysia",
                 " by Galster"
             });
         }
