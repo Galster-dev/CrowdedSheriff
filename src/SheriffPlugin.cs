@@ -7,6 +7,7 @@ using HarmonyLib;
 namespace CrowdedSheriff
 {
     [BepInPlugin(Id, "Sheriff role mod", version)]
+    [BepInDependency("com.herysia.LobbyOptionsAPI")]
     public class SheriffPlugin : BasePlugin
     {
         public const string Id = "ru.galster.sheriffmod";
