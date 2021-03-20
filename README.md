@@ -1,5 +1,5 @@
 # Warning!
-This mod still in pre-release, so it may have some bugs. So please understand it and report any bugs you found in [issues](https://github.com/Galster2010/CrowdedSheriff/issues)
+This mod is deprecated. It supports 2020.12.9s only and not going to be updated. Watch [CrowdedMods](https://github.com/CrowdedMods) for other cool mods
 
 # CrowdedSherrif
 Very small [BepInEx](https://github.com/BepInEx/BepInEx/) plugin adding Sheriff role in the game\
